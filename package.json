@@ -1,0 +1,37 @@
+{
+  "name": "volunify-server",
+  "version": "1.0.0",
+  "description": "Express REST API for the Volunify social development events platform",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch --env-file=./.env src/index.ts",
+    "build": "tsc",
+    "start": "node --env-file=./.env dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "db:setup": "prisma generate && prisma db push --accept-data-loss && npm run db:seed",
+    "db:push": "prisma db push --accept-data-loss",
+    "db:generate": "prisma generate",
+    "db:seed": "node --env-file=./.env --import tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.11.1",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22",
+    "prisma": "^6.11.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5"
+  }
+}

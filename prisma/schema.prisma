@@ -1,0 +1,53 @@
+// Prisma schema for the Volunify Express API server (MongoDB)
+// Must stay identical to the client's schema — both apps share one database.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String          @default(cuid()) @id @map("_id")
+  name          String
+  email         String          @unique
+  photoURL      String?
+  passwordHash  String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  createdEvents Event[]         @relation("Creator")
+  participations Participation[]
+}
+
+model Event {
+  id           String          @default(cuid()) @id @map("_id")
+  title        String
+  description  String
+  eventType    String
+  thumbnailUrl String
+  location     String
+  eventDate    DateTime
+  creatorEmail String
+  creator      User            @relation("Creator", fields: [creatorEmail], references: [email], onDelete: Cascade)
+  participants Participation[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([eventDate])
+  @@index([creatorEmail])
+}
+
+model Participation {
+  id        String   @default(cuid()) @id @map("_id")
+  eventId   String
+  userEmail String
+  joinedAt  DateTime @default(now())
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+
+  @@unique([eventId, userEmail])
+  @@index([userEmail])
+}
