@@ -8,8 +8,18 @@ import { loginSchema, registerSchema } from "../lib/validations";
 
 const router = Router();
 
-function toClientUser(user: { id: string; name: string; email: string; photoURL: string | null }) {
-  return { id: user.id, name: user.name, email: user.email, image: user.photoURL };
+function toClientUser(user: {
+  id: string;
+  name: string;
+  email: string;
+  photoURL: string | null;
+}) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    image: user.photoURL,
+  };
 }
 
 /** GET /api/auth/providers — which OAuth providers are configured */
@@ -17,10 +27,12 @@ router.get("/providers", (_req: Request, res: Response) => {
   res.json({
     providers: {
       google: Boolean(
-        process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+        process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
       ),
     },
-    google: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+    google: Boolean(
+      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
+    ),
   });
 });
 
@@ -37,17 +49,25 @@ router.post("/register", async (req: Request, res: Response) => {
     const { name, email, photoURL, password } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
 
-    const existing = await db.user.findUnique({ where: { email: normalizedEmail } });
+    const existing = await db.user.findUnique({
+      where: { email: normalizedEmail },
+    });
     if (existing) {
-      res
-        .status(409)
-        .json({ error: "An account with this email already exists. Please login instead." });
+      res.status(409).json({
+        error:
+          "An account with this email already exists. Please login instead.",
+      });
       return;
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await db.user.create({
-      data: { name, email: normalizedEmail, photoURL: photoURL || null, passwordHash },
+      data: {
+        name,
+        email: normalizedEmail,
+        photoURL: photoURL || null,
+        passwordHash,
+      },
     });
 
     res.status(201).json({
@@ -76,7 +96,10 @@ router.post("/login", async (req: Request, res: Response) => {
       return;
     }
 
-    const isValid = await bcrypt.compare(parsed.data.password, user.passwordHash);
+    const isValid = await bcrypt.compare(
+      parsed.data.password,
+      user.passwordHash,
+    );
     if (!isValid) {
       res.status(401).json({ error: "Invalid email or password" });
       return;
@@ -160,7 +183,9 @@ router.get("/google", (req: Request, res: Response) => {
     include_granted_scopes: "true",
     prompt: "select_account",
   });
-  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+  res.redirect(
+    `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`,
+  );
 });
 
 router.get("/google/callback", async (req: Request, res: Response) => {
@@ -195,11 +220,15 @@ router.get("/google/callback", async (req: Request, res: Response) => {
       }),
     });
     const tokens = (await tokenRes.json()) as { access_token?: string };
-    if (!tokenRes.ok || !tokens.access_token) throw new Error("token exchange failed");
+    if (!tokenRes.ok || !tokens.access_token)
+      throw new Error("token exchange failed");
 
-    const infoRes = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
-      headers: { Authorization: `Bearer ${tokens.access_token}` },
-    });
+    const infoRes = await fetch(
+      "https://openidconnect.googleapis.com/v1/userinfo",
+      {
+        headers: { Authorization: `Bearer ${tokens.access_token}` },
+      },
+    );
     const info = (await infoRes.json()) as {
       email?: string;
       email_verified?: boolean;
@@ -219,7 +248,15 @@ router.get("/google/callback", async (req: Request, res: Response) => {
     const user =
       existing ??
       (await db.user.create({
-        data: { name, email, photoURL, passwordHash: await bcrypt.hash(crypto.randomBytes(24).toString("hex"), 10) },
+        data: {
+          name,
+          email,
+          photoURL,
+          passwordHash: await bcrypt.hash(
+            crypto.randomBytes(24).toString("hex"),
+            10,
+          ),
+        },
       }));
 
     const token = signToken({

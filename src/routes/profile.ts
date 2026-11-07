@@ -28,7 +28,12 @@ router.put("/", requireAuth, async (req: Request, res: Response) => {
 
     res.json({
       message: "Profile updated successfully!",
-      user: { id: user.id, name: user.name, email: user.email, image: user.photoURL },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.photoURL,
+      },
     });
   } catch (err) {
     console.error("PUT /api/profile error:", err);
