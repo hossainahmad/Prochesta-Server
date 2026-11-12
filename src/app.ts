@@ -15,14 +15,18 @@ app.use(
   cors({
     origin: [CLIENT_URL, "http://127.0.0.1:3000"],
     credentials: true,
-  })
+  }),
 );
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 
 // Health probe
+app.get("/", (_req, res) => {
+  res.json({ name: "Prochesta API", status: "ok", health: "/api" });
+});
+
 app.get("/api", (_req, res) => {
-  res.json({ name: "Volunify API", status: "ok" });
+  res.json({ name: "Prochesta API", status: "ok" });
 });
 
 app.use("/api/auth", authRoutes);
@@ -42,7 +46,7 @@ app.use(
     err: Error & { type?: string },
     _req: express.Request,
     res: express.Response,
-    _next: express.NextFunction
+    _next: express.NextFunction,
   ) => {
     if (err.type === "entity.parse.failed") {
       res.status(400).json({ error: "Invalid JSON body" });
@@ -50,7 +54,7 @@ app.use(
     }
     console.error("Unhandled API error:", err);
     res.status(500).json({ error: "Internal server error" });
-  }
+  },
 );
 
 export default app;
