@@ -13,3 +13,4 @@ app.listen(PORT, () => {
     `   Client origin allowed: ${process.env.CLIENT_URL ?? "http://localhost:3000"}`,
   );
 });
+export default app;
