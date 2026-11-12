@@ -7,6 +7,11 @@ import { signToken, tokenCookieOptions, TOKEN_COOKIE } from "../lib/jwt";
 import { loginSchema, registerSchema } from "../lib/validations";
 
 const router = Router();
+const CLIENT_URL = process.env.CLIENT_URL ?? "http://localhost:3000";
+
+function googleCallbackUrl() {
+  return `${CLIENT_URL.replace(/\/+$/, "")}/api/auth/google/callback`;
+}
 
 function toClientUser(user: {
   id: string;
@@ -169,11 +174,11 @@ router.get("/google", (req: Request, res: Response) => {
   res.cookie("g_state", state, {
     httpOnly: true,
     sameSite: "lax",
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 10 * 60 * 1000,
   });
-  const redirectUri = `${req.protocol}://${req.get("host")}/api/auth/google/callback`;
+  const redirectUri = googleCallbackUrl();
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
@@ -191,7 +196,7 @@ router.get("/google", (req: Request, res: Response) => {
 router.get("/google/callback", async (req: Request, res: Response) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const clientUrl = process.env.CLIENT_URL ?? "http://localhost:3000";
+  const clientUrl = CLIENT_URL;
 
   if (!clientId || !clientSecret) {
     res.redirect(`${clientUrl}/login?error=google_not_configured`);
@@ -215,7 +220,7 @@ router.get("/google/callback", async (req: Request, res: Response) => {
         code,
         client_id: clientId,
         client_secret: clientSecret,
-        redirect_uri: `${req.protocol}://${req.get("host")}/api/auth/google/callback`,
+        redirect_uri: googleCallbackUrl(),
         grant_type: "authorization_code",
       }),
     });
