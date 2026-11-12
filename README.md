@@ -2,7 +2,7 @@
 
 Express + TypeScript REST API for the **Prochesta** social development events platform. Backed by **MongoDB (Atlas)** via **Prisma** and protected by **JWT** signed with HS256, delivered as an `httpOnly` cookie.
 
-This is the **server repository** of the submission. The UI lives in a separate Next.js repository (the client).
+This is the **server repository** for the submission. The UI lives in a separate Next.js repository (the client).
 
 ## Tech Stack
 
@@ -29,6 +29,7 @@ npm run build             # tsc → dist/
 npm start                 # node dist/index.js
 ```
 
+<<<<<<< HEAD
 ## Environment Variables
 
 | Variable                                    | Purpose                                                                                                                       |
@@ -38,6 +39,19 @@ npm start                 # node dist/index.js
 | `CLIENT_URL`                                | Origin of the Next.js client (CORS + OAuth redirects)                                                                         |
 | `PORT`                                      | Default `3001`                                                                                                                |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional, enables Google login                                                                                                |
+=======
+Demo accounts (after seeding): `demo@prochesta.test` / `Demo1234` (+ nusrat@ / tanvir@).
+
+## Environment Variables
+
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | MongoDB URI (include `/Prochesta` database name) |
+| `JWT_SECRET` | HS256 signing secret — **must equal `AUTH_TOKEN_SECRET` in the client's .env** so the client middleware can verify the cookie |
+| `CLIENT_URL` | Origin of the Next.js client (CORS + OAuth redirects) |
+| `PORT` | Default `3001` |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional, enables Google login |
+>>>>>>> 2b2b5f757b2861139a263261eef39212516247f9
 
 ## API Reference
 
